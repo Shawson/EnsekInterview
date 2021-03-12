@@ -16,9 +16,5 @@
     <ProjectReference Include="..\Ensek.MeterReading.Data.Client\Ensek.MeterReading.Data.Client.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Enums\" />
-  </ItemGroup>
-
 
 </Project>

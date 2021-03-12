@@ -57,13 +57,13 @@ namespace Ensek.MeterReading.Api.Controllers
                     {
                         var meterReaderingRecords = await _mediator.Send(new ParseMeterReadingCsvFileRequest(reader));
 
-                        var successCount = await _mediator.Send(new StoreMeterReadingRecordsRequest(meterReaderingRecords.ValidRows));
+                        var failureCount = await _mediator.Send(new StoreMeterReadingRecordsRequest(meterReaderingRecords.ValidRows));
 
                         return new MeterReadingUploadResult
                         {
-                            SuccessfulRows = meterReaderingRecords.ValidRows.Count,
-                            ErrorRows = meterReaderingRecords.Errors.Count
-                        };
+                            SuccessfulRows = meterReaderingRecords.ValidRows.Count - failureCount,
+                            ErrorRows = meterReaderingRecords.Errors.Count + failureCount
+						};
                     }
                 }
 

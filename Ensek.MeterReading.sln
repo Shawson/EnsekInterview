@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ensek.MeterReading.Api", "Ensek.MeterReading.Api\Ensek.MeterReading.Api.csproj", "{CA54A147-AE86-4A07-96D5-88373905F257}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ensek.MeterReading.Api", "Ensek.MeterReading.Api\Ensek.MeterReading.Api.csproj", "{CA54A147-AE86-4A07-96D5-88373905F257}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Ensek.MeterReading.Database", "Ensek.MeterReading.Database\Ensek.MeterReading.Database.sqlproj", "{3CE5A27D-92F3-41BC-A806-5B384053B130}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ensek.MeterReading.Data.Api", "Ensek.MeterReader.Data.Api\Ensek.MeterReading.Data.Api.csproj", "{423905CD-40AD-4E95-A8D2-264DC3291A1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ensek.MeterReading.Data.Api", "Ensek.MeterReader.Data.Api\Ensek.MeterReading.Data.Api.csproj", "{423905CD-40AD-4E95-A8D2-264DC3291A1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ensek.MeterReading.Data.Client", "Ensek.MeterReading.Data.Client\Ensek.MeterReading.Data.Client.csproj", "{8F7F3B76-1328-4AAB-BC01-933687A86A8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ensek.MeterReading.Data.Client", "Ensek.MeterReading.Data.Client\Ensek.MeterReading.Data.Client.csproj", "{8F7F3B76-1328-4AAB-BC01-933687A86A8A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{DF8D79B8-4828-40FB-8FEA-418EB915447D}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

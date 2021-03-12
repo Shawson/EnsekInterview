@@ -2,7 +2,7 @@
 
 namespace Ensek.MeterReading.Api.Cqrs.Commands
 {
-    public class ParseCsvFileResult<T> where T : new()
+    public class ParseCsvFileResult<T> 
     {
         public ParseCsvFileResult()
         {

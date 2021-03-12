@@ -1,15 +1,16 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ensek.MeterReading.Api.Cqrs.Commands
 {
     public class BaseCsvFileParser<TTargetType, TMapping> 
-        where TTargetType : new()
         where TMapping : ClassMap
     {
         public async Task<ParseCsvFileResult<TTargetType>> Parse(TextReader reader, CancellationToken cancellationToken) 
@@ -19,9 +20,11 @@ namespace Ensek.MeterReading.Api.Cqrs.Commands
 
             using (var csv = new CsvReader(reader, 
                 new CsvConfiguration(CultureInfo.InvariantCulture) { 
-                    TrimOptions = TrimOptions.Trim,
-                    HasHeaderRecord = true
-                }))
+                    //TrimOptions = TrimOptions.Trim,
+                    //HasHeaderRecord = true
+					Delimiter=",",
+					Encoding= new UTF8Encoding(false)
+				}))
             {
                 csv.Context.RegisterClassMap<TMapping>();
 
@@ -35,15 +38,17 @@ namespace Ensek.MeterReading.Api.Cqrs.Commands
                         var record = csv.GetRecord<TTargetType>();
                         result.ValidRows.Add(record);
                     }
-                    catch (CsvValidationException cve)
-                    {
-                        throw cve;
-                    }
-                    catch (CsvHelperException ex) when (ex is ReaderException)
-                    {
-                        throw ex;
-                    }
-                }
+					catch(FieldValidationException fve)
+					{
+						result.Errors.Add(new CsvRowError
+						{
+							LineNumber = fve.Context.Parser.Row,
+							FieldName = fve.Context.Reader.HeaderRecord[fve.Context.Reader.CurrentIndex],
+							FieldValue = fve.Field,
+							ErrorMessage = fve.Message
+						});
+					}
+				}
 
                 return result;
             }
