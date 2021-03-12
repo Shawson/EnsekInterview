@@ -12,6 +12,9 @@ Post-Deployment Script Template
 
 --https://documentation.red-gate.com/sca/developing-databases/working-with-the-visual-studio-extension/advanced-scenarios-for-visual-studio/using-seed-data-in-visual-studio
 
---BULK INSERT [CustomerAccount]  
---FROM '$(DeployPath)TransactionHistoryData.csv'  
---WITH (FIELDTERMINATOR = ',', FIRSTROW = 2);
+if (NOT EXISTS (SELECT TOP 1 1 FROM [CustomerAccount]))
+BEGIN
+    BULK INSERT [CustomerAccount]  
+    FROM '$(DeployPath)\Test_Accounts.csv'  
+    WITH (FIELDTERMINATOR = ',', KEEPIDENTITY, FIRSTROW = 2);
+END

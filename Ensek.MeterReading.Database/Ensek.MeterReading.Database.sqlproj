@@ -56,5 +56,29 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="Tables" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\CustomerAccount.sql" />
+    <Build Include="Tables\MeterReading.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Seed.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Ensek.MeterReading.Database.publish.xml" />
+    <None Include="Test_Accounts.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <SqlCmdVariable Include="DeployPath">
+      <DefaultValue>$(MSBuildProjectDirectory)</DefaultValue>
+      <Value>$(SqlCmdVar__1)</Value>
+    </SqlCmdVariable>
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>
