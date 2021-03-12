@@ -1,10 +1,7 @@
 ﻿using Ensek.MeterReading.Api.DataClient;
-using Ensek.MeterReading.Api.Dtos;
 using Ensek.MeterReading.Data.Client.Dtos;
 using MediatR;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

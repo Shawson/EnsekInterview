@@ -1,9 +1,6 @@
 ﻿using Ensek.MeterReading.Api.DataClient.Enums;
 using Ensek.MeterReading.Data.Client.Dtos;
 using RestEase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Ensek.MeterReading.Api.DataClient

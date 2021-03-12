@@ -1,6 +1,5 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ensek.MeterReading.Api.Cqrs.Commands
 {
-    public class BaseCsvFileParser<TTargetType, TMapping> 
+    public abstract class BaseCsvFileParser<TTargetType, TMapping> 
         where TMapping : ClassMap
     {
         public async Task<ParseCsvFileResult<TTargetType>> Parse(TextReader reader, CancellationToken cancellationToken) 
@@ -20,8 +19,6 @@ namespace Ensek.MeterReading.Api.Cqrs.Commands
 
             using (var csv = new CsvReader(reader, 
                 new CsvConfiguration(CultureInfo.InvariantCulture) { 
-                    //TrimOptions = TrimOptions.Trim,
-                    //HasHeaderRecord = true
 					Delimiter=",",
 					Encoding= new UTF8Encoding(false)
 				}))
