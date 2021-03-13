@@ -24,11 +24,14 @@ namespace Ensek.MeterReading.Api.Tests.Cqrs.Commands
 		[TearDown]
 		public void TearDown()
 		{
-			_textReader.Close();
-			_textReader.Dispose();
+			if (_textReader != null)
+			{
+				_textReader.Close();
+				_textReader.Dispose();
+			}
 		}
 
-		[TestCase(TestCsvFiles.FiveValidRows, 5, TestName ="Correct Valid Result Count : CSV File with 5 valid rows only")]
+		[TestCase(TestCsvFiles.FiveValidRows, 5, TestName = "Correct Valid Result Count : CSV File with 5 valid rows only")]
 		[TestCase(TestCsvFiles.FiveInvalidRows, 0, TestName = "Correct Valid Result Count : CSV File with 5 invalid rows only")]
 		[TestCase(TestCsvFiles.CompleteFile, 29, TestName = "Correct Valid Result Count : Ensek sample CSV File with 29 valid rows")]
 		[TestCase(TestCsvFiles.TenMixedRows, 5, TestName = "Correct Valid Result Count : CSV File with 5 valid and 5 invalid rows")]
@@ -62,8 +65,16 @@ namespace Ensek.MeterReading.Api.Tests.Cqrs.Commands
 		{
 			_textReader = new StringReader(TestCsvFiles.EmptyFile);
 
-			Assert.ThrowsAsync<MalformedFileException>(async () => 
+			Assert.ThrowsAsync<MalformedFileException>(async () =>
 				await _subject.Handle(new ParseMeterReadingCsvFileRequest(_textReader), CancellationToken.None)
+			);
+		}
+
+		[Test]
+		public void Arg_exception_if_reader_is_null()
+		{
+			Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _subject.Handle(new ParseMeterReadingCsvFileRequest(null), CancellationToken.None)
 			);
 		}
 	}

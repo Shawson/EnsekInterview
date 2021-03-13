@@ -15,6 +15,11 @@ namespace Ensek.MeterReading.Api.Cqrs.Commands
     {
         public async Task<ParseCsvFileResult<TTargetType>> Parse(TextReader reader, CancellationToken cancellationToken) 
         {
+			if (reader == null)
+			{
+				throw new ArgumentException("Reader cannot be null");
+			}
+
             var result = new ParseCsvFileResult<TTargetType>();
 
 			try

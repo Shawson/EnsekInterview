@@ -40,6 +40,11 @@ namespace Ensek.MeterReading.Data.Api.Cqrs.Commands
 
 		public async Task<SubmitMeterReadingResponseEnum> Handle(SaveMeterReadingRequest request, CancellationToken cancellationToken)
 		{
+			if (request?.Reading == null)
+			{
+				throw new ArgumentException("Reading cannot be null");
+			}
+
 			try
 			{
 				// does account exist
