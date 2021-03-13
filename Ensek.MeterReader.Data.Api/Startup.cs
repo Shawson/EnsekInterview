@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Ensek.MeterReading.Data.Api.Middleware;
+using MediatR;
+using Microsoft.OpenApi.Models;
 
 namespace Ensek.MeterReading.Data.Api
 {
@@ -31,10 +33,33 @@ namespace Ensek.MeterReading.Data.Api
         {
             services.AddControllers();
 
-            services.AddDbContext<EnsekDbContext>(
+			services.AddAutoMapper(typeof(Startup));
+			services.AddMediatR(typeof(Startup).Assembly);
+
+			services.AddDbContext<EnsekDbContext>(
                 options => options.UseSqlServer(Configuration.GetValue<string>("DbConnectionString")));
 
-            services.AddSwaggerGen();
+			services.AddScoped<DbContext, EnsekDbContext>();
+
+			services.AddSwaggerGen(c =>
+			{
+				c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
+				{
+					In = ParameterLocation.Header, 
+					Name = "X-MeterReadingData-ApiKey", 
+					Type = SecuritySchemeType.ApiKey, 
+				});
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+					{
+						{
+							new OpenApiSecurityScheme
+							{
+								Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
+							},
+							new List<string>()
+						}
+					});
+			});
 
             services.AddTransient(typeof(IRepository<>), typeof(EfRepository<>));
         }
@@ -54,7 +79,8 @@ namespace Ensek.MeterReading.Data.Api
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+
+			});
 
             app.UseRouting();
 

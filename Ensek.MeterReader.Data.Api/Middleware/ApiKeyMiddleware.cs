@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ensek.MeterReading.Data.Api.Middleware
 {
@@ -9,7 +12,7 @@ namespace Ensek.MeterReading.Data.Api.Middleware
 	{
 		private readonly RequestDelegate _next;
 		private const string APIKEYNAME = "ApiKey";
-		private const string APIKEYHEADER = "X-MeterReadingData-ApiKey"
+		private const string APIKEYHEADER = "X-MeterReadingData-ApiKey";
 		public ApiKeyMiddleware(RequestDelegate next)
 		{
 			_next = next;

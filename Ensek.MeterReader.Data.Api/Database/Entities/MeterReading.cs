@@ -8,7 +8,7 @@ namespace Ensek.MeterReading.Data.Api.Database.Entities
     public class MeterReading
     {
         [Key]
-        public int MeterReaderId { get; set; }
+        public int MeterReadingId { get; set; }
 
         [ForeignKey("CustomerAccount")]
         public int AccountId { get; set; }

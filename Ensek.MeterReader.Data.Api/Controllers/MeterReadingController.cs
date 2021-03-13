@@ -1,7 +1,10 @@
-﻿using Ensek.MeterReading.Api.DataClient.Enums;
+﻿using AutoMapper;
+using Ensek.MeterReading.Api.DataClient.Enums;
+using Ensek.MeterReading.Data.Api.Cqrs.Commands;
 using Ensek.MeterReading.Data.Api.Database.Entities;
 using Ensek.MeterReading.Data.Api.Repository;
 using Ensek.MeterReading.Data.Client.Dtos;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,67 +21,44 @@ namespace Ensek.MeterReading.Data.Api.Controllers
     {
 
         private readonly ILogger<MeterReadingController> _logger;
-		private readonly IRepository<CustomerAccount> _customerAccountRepository;
-		private readonly IRepository<Database.Entities.MeterReading> _meterReadingRepository;
+		private readonly IMapper _mapper;
+		private readonly IMediator _mediator;
+	
 
 		public MeterReadingController(
 			ILogger<MeterReadingController> logger,
-			IRepository<CustomerAccount> customerAccountRepository,
-			IRepository<Database.Entities.MeterReading> meterReadingRepository)
+			IMapper mapper,
+			IMediator mediator
+			)
         {
             _logger = logger;
-			_customerAccountRepository = customerAccountRepository;
-			_meterReadingRepository = meterReadingRepository;
+			_mapper = mapper;
+			_mediator = mediator;
+			
 		}
 
         [HttpPost]
-        public async Task<ActionResult<SubmitMeterReadingResponseEnum>> Post(MeterReadingDto reading)
+        public async Task<ActionResult<SubmitMeterReadingResponseEnum>> Post(MeterReadingDto readingDto)
         {
             // is reading null
-            if (reading == null)
+            if (readingDto == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Reading cannot be null");
             }
 
-            if (reading.AccountId < 1)
+            if (readingDto.AccountId < 1)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid account number");
             }
 
-            if (reading.MeterReadValue < 0)
+            if (readingDto.MeterReadValue < 0)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid reading value");
             }
 
-            
-			try
-			{
-				// does account exist
-				if (!await _customerAccountRepository.Any(x => x.AccountId == reading.AccountId))
-				{
-					return SubmitMeterReadingResponseEnum.AccountNotFound;
-				}
+			var reading = _mapper.Map<Database.Entities.MeterReading>(readingDto);
 
-				// has reading already been submitted?
-				if (await _meterReadingRepository.Any(x => x.AccountId == reading.AccountId &&
-															x.MeterReadValue == reading.MeterReadValue &&
-															x.MeterReadingDateTime == reading.MeterReadingDateTime))
-				{
-					return SubmitMeterReadingResponseEnum.DuplicateReading;
-				}
-
-				// store the reading
-
-				_meterReadingRepository.Add(reading);
-				await _meterReadingRepository.SaveChangesAsync();
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Failure while trying to save meter reading for Account {accountId} for date {readingDate}", reading.AccountId, reading.MeterReadingDateTime);
-				return SubmitMeterReadingResponseEnum.Failure;
-			}
-
-            return SubmitMeterReadingResponseEnum.Success;
+			return await _mediator.Send(new SaveMeterReadingRequest(reading));
         }
     }
 }

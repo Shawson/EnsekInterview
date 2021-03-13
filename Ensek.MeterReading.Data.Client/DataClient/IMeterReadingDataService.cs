@@ -10,9 +10,7 @@ namespace Ensek.MeterReading.Api.DataClient
         [Header("X-MeterReadingData-ApiKey")]
         string ApiKey { get; set; }
 
-        [Post("api/MeterReading")]
+        [Post("MeterReading")]
         Task<SubmitMeterReadingResponseEnum> SubmitReading([Body] MeterReadingDto model);
     }
-
-
 }
