@@ -1,4 +1,7 @@
-﻿using Ensek.MeterReading.Data.Client.Dtos;
+﻿using Ensek.MeterReading.Api.DataClient.Enums;
+using Ensek.MeterReading.Data.Api.Database.Entities;
+using Ensek.MeterReading.Data.Api.Repository;
+using Ensek.MeterReading.Data.Client.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,15 +18,21 @@ namespace Ensek.MeterReading.Data.Api.Controllers
     {
 
         private readonly ILogger<MeterReadingController> _logger;
+		private readonly IRepository<CustomerAccount> _customerAccountRepository;
+		private readonly IRepository<Database.Entities.MeterReading> _meterReadingRepository;
 
-        public MeterReadingController(ILogger<MeterReadingController> logger)
+		public MeterReadingController(
+			ILogger<MeterReadingController> logger,
+			IRepository<CustomerAccount> customerAccountRepository,
+			IRepository<Database.Entities.MeterReading> meterReadingRepository)
         {
             _logger = logger;
-        }
+			_customerAccountRepository = customerAccountRepository;
+			_meterReadingRepository = meterReadingRepository;
+		}
 
         [HttpPost]
-        [Route("")]
-        public async Task<ActionResult<bool>> Post(MeterReadingDto reading)
+        public async Task<ActionResult<SubmitMeterReadingResponseEnum>> Post(MeterReadingDto reading)
         {
             // is reading null
             if (reading == null)
@@ -41,14 +50,35 @@ namespace Ensek.MeterReading.Data.Api.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid reading value");
             }
 
-            // does account exist
+            
+			try
+			{
+				// does account exist
+				if (!await _customerAccountRepository.Any(x => x.AccountId == reading.AccountId))
+				{
+					return SubmitMeterReadingResponseEnum.AccountNotFound;
+				}
 
+				// has reading already been submitted?
+				if (await _meterReadingRepository.Any(x => x.AccountId == reading.AccountId &&
+															x.MeterReadValue == reading.MeterReadValue &&
+															x.MeterReadingDateTime == reading.MeterReadingDateTime))
+				{
+					return SubmitMeterReadingResponseEnum.DuplicateReading;
+				}
 
-            // has reading already been submitted?
+				// store the reading
 
-            // store the reading
+				_meterReadingRepository.Add(reading);
+				await _meterReadingRepository.SaveChangesAsync();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failure while trying to save meter reading for Account {accountId} for date {readingDate}", reading.AccountId, reading.MeterReadingDateTime);
+				return SubmitMeterReadingResponseEnum.Failure;
+			}
 
-            return true;
+            return SubmitMeterReadingResponseEnum.Success;
         }
     }
 }

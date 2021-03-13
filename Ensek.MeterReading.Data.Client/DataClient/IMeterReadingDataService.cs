@@ -7,7 +7,7 @@ namespace Ensek.MeterReading.Api.DataClient
 {
     public interface IMeterReadingDataService
     {
-        [Header("X-MeterReadingData-Token")]
+        [Header("X-MeterReadingData-ApiKey")]
         string ApiKey { get; set; }
 
         [Post("api/MeterReading")]

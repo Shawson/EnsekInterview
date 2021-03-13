@@ -1,4 +1,4 @@
-using Ensek.MeterReading.Data.Api.Database;
+﻿using Ensek.MeterReading.Data.Api.Database;
 using Ensek.MeterReading.Data.Api.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ensek.MeterReading.Data.Api.Middleware;
 
 namespace Ensek.MeterReading.Data.Api
 {
@@ -59,7 +60,9 @@ namespace Ensek.MeterReading.Data.Api
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
+			app.UseMiddleware<ApiKeyMiddleware>();
+
+			app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });

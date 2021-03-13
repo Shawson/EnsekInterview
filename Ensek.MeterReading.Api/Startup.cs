@@ -1,9 +1,11 @@
-﻿using MediatR;
+﻿using Ensek.MeterReading.Api.DataClient;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RestEase;
 
 namespace Ensek.MeterReading.Api
 {
@@ -23,7 +25,14 @@ namespace Ensek.MeterReading.Api
 
             services.AddMediatR(typeof(Startup).Assembly);
 
-            services.AddSwaggerGen();
+			var client = new RestClient(Configuration.GetValue<string>("MeterReadingDataApi:Endpoint"))
+			{
+				RequestPathParamSerializer = new StringEnumRequestPathParamSerializer()
+			}.For<IMeterReadingDataService>();
+			client.ApiKey = Configuration.GetValue<string>("MeterReadingDataApi:ApiKey");
+			services.AddSingleton(client);
+
+			services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
