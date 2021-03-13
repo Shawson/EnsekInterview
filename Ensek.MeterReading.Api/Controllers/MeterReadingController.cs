@@ -42,7 +42,12 @@ namespace Ensek.MeterReading.Api.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, $"File larger than max size of {MaxFileSizeBytes} bytes");
             }
 
-            try
+			if (file.ContentType != "text/csv")
+			{
+				return StatusCode(StatusCodes.Status400BadRequest, $"File must be in CSV format");
+			}
+
+			try
             {
                 using (var memoryStream = new MemoryStream())
                 {
