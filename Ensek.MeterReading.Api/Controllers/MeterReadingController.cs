@@ -69,9 +69,11 @@ namespace Ensek.MeterReading.Api.Controllers
 						};
                     }
                 }
-
-                
             }
+			catch (MalformedFileException mfe)
+			{
+				return StatusCode(StatusCodes.Status400BadRequest, mfe.Message);
+			}
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected exception during CSV upload of file {filename}", file.FileName);

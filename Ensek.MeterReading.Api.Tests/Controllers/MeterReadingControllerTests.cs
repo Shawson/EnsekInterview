@@ -71,6 +71,30 @@ namespace Ensek.MeterReading.Api.Tests
 		}
 
 		[Test]
+		public async Task Malformed_file_error_returns_400()
+		{
+			_mediator
+				.Send(Arg.Any<ParseMeterReadingCsvFileRequest>(), Arg.Any<CancellationToken>())
+				.Returns<Task<ParseCsvFileResult<MeterReadingDto>>>(x => { throw new MalformedFileException("error message"); });
+
+			var response = await _subject.Post(FormFileFactory.Get("test", 300, "big.csv", "text/csv"));
+
+			Assert.AreEqual(400, ((ObjectResult)response.Result).StatusCode);
+		}
+
+		[Test]
+		public async Task Malformed_file_error_returns_message()
+		{
+			_mediator
+				.Send(Arg.Any<ParseMeterReadingCsvFileRequest>(), Arg.Any<CancellationToken>())
+				.Returns<Task<ParseCsvFileResult<MeterReadingDto>>>(x => { throw new MalformedFileException("error message"); });
+
+			var response = await _subject.Post(FormFileFactory.Get("test", 300, "big.csv", "text/csv"));
+
+			Assert.AreEqual("error message", ((ObjectResult)response.Result).Value.ToString());
+		}
+
+		[Test]
 		public async Task Correct_success_returned()
 		{
 			_mediator

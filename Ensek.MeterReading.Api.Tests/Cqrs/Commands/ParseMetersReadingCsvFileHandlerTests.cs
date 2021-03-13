@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using CsvHelper;
+using Ensek.MeterReading.Api.Cqrs.Commands;
 using NUnit.Framework;
 
 namespace Ensek.MeterReading.Api.Tests.Cqrs.Commands
 {
 	public class ParseMetersReadingCsvFileHandlerTests
 	{
-		private TextReader _reader;
+		private TextReader _textReader;
 		private ParseMeterReadingCsvFileHandler _subject;
 
 		[SetUp]
@@ -21,45 +24,97 @@ namespace Ensek.MeterReading.Api.Tests.Cqrs.Commands
 		[TearDown]
 		public void TearDown()
 		{
-			_reader.Close();
-			_reader.Dispose();
+			_textReader.Close();
+			_textReader.Dispose();
 		}
 
-		[TestCase(TestCsvFiles.FiveValidRows, 5)]
-		[TestCase(TestCsvFiles.CompleteFile, 25)]
-		public async Task Csv_parser_extracts_correct_number_of_valid_rows(string csvContent, int validRowCount)
+		[TestCase(TestCsvFiles.FiveValidRows, 5, TestName ="Correct Valid Result Count : CSV File with 5 valid rows only")]
+		[TestCase(TestCsvFiles.FiveInvalidRows, 0, TestName = "Correct Valid Result Count : CSV File with 5 invalid rows only")]
+		[TestCase(TestCsvFiles.CompleteFile, 29, TestName = "Correct Valid Result Count : Ensek sample CSV File with 29 valid rows")]
+		[TestCase(TestCsvFiles.TenMixedRows, 5, TestName = "Correct Valid Result Count : CSV File with 5 valid and 5 invalid rows")]
+		public async Task Csv_parser_extracts_correct_number_of_valid_rows(string csvContent, int rowCount)
 		{
 			_textReader = new StringReader(csvContent);
 
-			var response = await _subject.Handle(new ParseMeterReadingCsvFileRequest(_reader));
+			var response = await _subject.Handle(new ParseMeterReadingCsvFileRequest(_textReader), CancellationToken.None);
 
-			Assert.AreEqual(validRowCount, response.ValidRows.Count);
+			Assert.AreEqual(rowCount, response.ValidRows.Count);
+		}
+
+		[TestCase(TestCsvFiles.FiveValidRows, 0, TestName = "Correct Invalid Result Count : CSV File with 5 valid rows only")]
+		[TestCase(TestCsvFiles.FiveInvalidRows, 5, TestName = "Correct Invalid Result Count : CSV File with 5 invalid rows only")]
+		[TestCase(TestCsvFiles.CompleteFile, 6, TestName = "Correct Invalid Result Count : Ensek sample CSV File with 6 invalid rows")]
+		[TestCase(TestCsvFiles.TenMixedRows, 5, TestName = "Correct Invalid Result Count : CSV File with 5 valid and 5 invalid rows")]
+		[TestCase(TestCsvFiles.BadMeterReadingFormats, 4, TestName = "Correct Invalid Result Count : CSV File with 4 invalid meter reading formats")]
+		[TestCase(TestCsvFiles.MissingOrInvalidAccountNumbers, 2, TestName = "Correct Invalid Result Count : CSV File with 2 missing or invalid account numbers")]
+		[TestCase(TestCsvFiles.BadDateTimeFormats, 4, TestName = "Correct Invalid Result Count : CSV File with 4 bad date time formats")]
+		public async Task Csv_parser_identifies_correct_number_of_errors(string csvContent, int rowCount)
+		{
+			_textReader = new StringReader(csvContent);
+
+			var response = await _subject.Handle(new ParseMeterReadingCsvFileRequest(_textReader), CancellationToken.None);
+
+			Assert.AreEqual(rowCount, response.Errors.Count);
 		}
 
 		[Test]
-		public async Task Csv_parser_identifies_correct_number_of_errors()
+		public void Empty_file_throws_argument_exception()
 		{
+			_textReader = new StringReader(TestCsvFiles.EmptyFile);
 
+			Assert.ThrowsAsync<MalformedFileException>(async () => 
+				await _subject.Handle(new ParseMeterReadingCsvFileRequest(_textReader), CancellationToken.None)
+			);
 		}
 	}
 
 	public static class TestCsvFiles
 	{
-		public static string FiveValidRows = @"AccountId,MeterReadingDateTime,MeterReadValue
+		public const string EmptyFile = @"";
+
+		public const string FiveValidRows = @"AccountId,MeterReadingDateTime,MeterReadValue
 2344,22/04/2019 09:24,01002
 2233,22/04/2019 12:25,00323
 8766,22/04/2019 12:25,03440
 2344,22/04/2019 12:25,01002
 2345,22/04/2019 12:25,45522";
 
-		public static string FiveInvalidRows = @"AccountId,MeterReadingDateTime,MeterReadValue
+		public const string BadMeterReadingFormats = @"AccountId,MeterReadingDateTime,MeterReadValue
+2344,22/04/2019 09:24,ABCDE
+2233,22/04/2019 12:25,999999
+8766,22/04/2019 12:25,123,
+8766,22/04/2019 12:25,";
+
+		public const string MissingOrInvalidAccountNumbers = @"AccountId,MeterReadingDateTime,MeterReadValue
+,22/04/2019 09:24,ABCDE
+ABC,22/04/2019 12:25,999999";
+
+		public const string BadDateTimeFormats = @"AccountId,MeterReadingDateTime,MeterReadValue
+2344,2019-04-22 09:24,01002
+2233,2019/04/22 12:25,00323
+8766,04/22/2019 12:25,03440
+2344,22/04/2019 9:25,01002";
+
+		public const string FiveInvalidRows = @"AccountId,MeterReadingDateTime,MeterReadValue
 2344,22/04/2019 09:24,0A002
 2233,22/04/2019 12:25,
 8766,22/04/2019 12:25,abc
 2344,22/04/2019 12:25,VOID
 2345,22/04/2019 12:25,999999";
 
-		public static string CompleteFile = @"AccountId,MeterReadingDateTime,MeterReadValue
+		public const string TenMixedRows = @"AccountId,MeterReadingDateTime,MeterReadValue
+2344,22/04/2019 09:24,0A002
+2344,22/04/2019 09:24,01002
+2233,22/04/2019 12:25,
+2233,22/04/2019 12:25,00323
+8766,22/04/2019 12:25,abc
+8766,22/04/2019 12:25,03440
+2344,22/04/2019 12:25,VOID
+2344,22/04/2019 12:25,01002
+2345,22/04/2019 12:25,999999
+2345,22/04/2019 12:25,45522";
+
+		public const string CompleteFile = @"AccountId,MeterReadingDateTime,MeterReadValue
 2344,22/04/2019 09:24,01002
 2233,22/04/2019 12:25,00323
 8766,22/04/2019 12:25,03440

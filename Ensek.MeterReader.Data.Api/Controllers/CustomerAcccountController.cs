@@ -23,12 +23,5 @@ namespace Ensek.MeterReading.Data.Api.Controllers
         {
             return new CustomAccountDto();
         }
-
-        [HttpGet]
-        [Route("exists/{accountNumber:int}")]
-        public async Task<bool> Exists(int accountNumber)
-        {
-            return true;
-        }
     }
 }
