@@ -15,11 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{DF8D79
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ensek.MeterReading.Api.Tests", "Ensek.MeterReading.Api.Tests\Ensek.MeterReading.Api.Tests.csproj", "{45A6AE28-1DF2-4619-B113-A67F9FC23C87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ensek.MeterReading.Api.Tests", "Ensek.MeterReading.Api.Tests\Ensek.MeterReading.Api.Tests.csproj", "{45A6AE28-1DF2-4619-B113-A67F9FC23C87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ensek.MeterReading.Data.Api.Tests", "Ensek.MeterReading.Data.Api.Tests\Ensek.MeterReading.Data.Api.Tests.csproj", "{371EAFAF-6DC7-461E-94DB-7DC9F2829799}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ensek.MeterReading.Data.Api.Tests", "Ensek.MeterReading.Data.Api.Tests\Ensek.MeterReading.Data.Api.Tests.csproj", "{371EAFAF-6DC7-461E-94DB-7DC9F2829799}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
